@@ -171,32 +171,15 @@ pub trait __SimdRunner<A, R> {
 pub fn __run_simd_runtime_decide<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     #![allow(unreachable_code)]
 
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    #[cfg(target_arch = "x86_64")]
     {
-        if is_x86_feature_detected!("avx2") && is_x86_feature_detected!("fma") {
-            return unsafe { S::run::<engines::avx2::Avx2>(args) };
-        }
-
-        if is_x86_feature_detected!("sse4.1") {
-            return unsafe { S::run::<engines::sse41::Sse41>(args) };
-        }
-
-        if is_x86_feature_detected!("sse2") {
-            return unsafe { S::run::<engines::sse2::Sse2>(args) };
-        }
+        return unsafe { S::run::<engines::avx2::Avx2>(args) };
     }
 
     #[cfg(target_arch = "aarch64")]
     if is_aarch64_feature_detected!("neon") {
         return unsafe { S::run::<engines::neon::Neon>(args) };
     }
-
-    #[cfg(target_arch = "wasm32")]
-    {
-        // Note: there's currently no way to detect SIMD support in WebAssembly at runtime
-        return unsafe { S::run::<engines::wasm32::Wasm>(args) };
-    }
-
     unsafe { S::run::<engines::scalar::Scalar>(args) }
 }
 
@@ -210,16 +193,9 @@ pub fn __run_simd_compiletime_select<S: __SimdRunner<A, R>, A, R>(args: A) -> R 
     #![allow(unreachable_code)]
     #![allow(clippy::needless_return)]
 
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    #[cfg(target_arch = "x86_64")]
     {
-        #[cfg(all(target_feature = "avx2", target_feature = "fma"))]
         return unsafe { S::run::<engines::avx2::Avx2>(args) };
-
-        #[cfg(target_feature = "sse4.1")]
-        return unsafe { S::run::<engines::sse41::Sse41>(args) };
-
-        #[cfg(target_feature = "sse2")]
-        return unsafe { S::run::<engines::sse2::Sse2>(args) };
     }
 
     #[cfg(target_arch = "aarch64")]
@@ -227,12 +203,6 @@ pub fn __run_simd_compiletime_select<S: __SimdRunner<A, R>, A, R>(args: A) -> R 
         #[cfg(target_feature = "neon")]
         return unsafe { S::run::<engines::neon::Neon>(args) };
     }
-
-    #[cfg(target_arch = "wasm32")]
-    {
-        return unsafe { S::run::<engines::wasm32::Wasm>(args) };
-    }
-
     return unsafe { S::run::<engines::scalar::Scalar>(args) };
 }
 
@@ -240,19 +210,6 @@ pub fn __run_simd_compiletime_select<S: __SimdRunner<A, R>, A, R>(args: A) -> R 
 pub fn __run_simd_invoke_scalar<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     unsafe { S::run::<engines::scalar::Scalar>(args) }
 }
-
-#[inline(always)]
-#[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-pub unsafe fn __run_simd_invoke_sse2<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
-    unsafe { S::run::<engines::sse2::Sse2>(args) }
-}
-
-#[inline(always)]
-#[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-pub unsafe fn __run_simd_invoke_sse41<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
-    unsafe { S::run::<engines::sse41::Sse41>(args) }
-}
-
 #[inline(always)]
 #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
 pub unsafe fn __run_simd_invoke_avx2<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
@@ -263,12 +220,6 @@ pub unsafe fn __run_simd_invoke_avx2<S: __SimdRunner<A, R>, A, R>(args: A) -> R 
 #[cfg(target_feature = "neon")]
 pub unsafe fn __run_simd_invoke_neon<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     unsafe { S::run::<engines::neon::Neon>(args) }
-}
-
-#[inline(always)]
-#[cfg(target_arch = "wasm32")]
-pub unsafe fn __run_simd_invoke_wasm<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
-    unsafe { S::run::<engines::wasm32::Wasm>(args) }
 }
 
 #[macro_export]

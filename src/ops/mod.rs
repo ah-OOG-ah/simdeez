@@ -6,7 +6,7 @@ use crate::engines::scalar::Scalar;
 #[cfg(target_arch = "wasm32")]
 use crate::engines::wasm32::Wasm;
 #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-use crate::engines::{avx2::Avx2, sse2::Sse2, sse41::Sse41};
+use crate::engines::avx2::Avx2;
 
 use crate::libm_ext::FloatExt;
 use core::marker::PhantomData;
@@ -43,28 +43,12 @@ pub struct Ops<T, T2>(PhantomData<(T, T2)>);
 
 macro_rules! with_feature_flag {
     (Avx2, $($r:tt)+) => {
-        #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-        #[target_feature(enable = "avx2", enable = "fma")]
-        $($r)+
-    };
-    (Sse2, $($r:tt)+) => {
-        #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-        #[target_feature(enable = "sse2")]
-        $($r)+
-    };
-    (Sse41, $($r:tt)+) => {
-        #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-        #[target_feature(enable = "sse4.1")]
+        #[cfg(target_arch = "x86_64")]
         $($r)+
     };
     (Neon, $($r:tt)+) => {
         #[cfg(target_arch = "aarch64")]
         #[target_feature(enable = "neon")]
-        $($r)+
-    };
-    (Wasm, $($r:tt)+) => {
-        #[cfg(target_arch = "wasm32")]
-        #[target_feature(enable = "simd128")]
         $($r)+
     };
     (Scalar, $($r:tt)+) => {
@@ -75,23 +59,11 @@ use with_feature_flag;
 
 macro_rules! with_cfg_flag {
     (Avx2, $($r:tt)+) => {
-        #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-        $($r)+
-    };
-    (Sse2, $($r:tt)+) => {
-        #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-        $($r)+
-    };
-    (Sse41, $($r:tt)+) => {
-        #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+        #[cfg(target_arch = "x86_64")]
         $($r)+
     };
     (Neon, $($r:tt)+) => {
         #[cfg(target_arch = "aarch64")]
-        $($r)+
-    };
-    (Wasm, $($r:tt)+) => {
-        #[cfg(target_arch = "wasm32")]
         $($r)+
     };
     (Scalar, $($r:tt)+) => {

@@ -8,7 +8,7 @@ use core::ops::*;
 use crate::ops::*;
 use crate::*;
 
-mod simd;
+pub mod simd;
 pub use self::simd::*;
 
 define_simd_type!(Avx2, i8, 32, __m256i);

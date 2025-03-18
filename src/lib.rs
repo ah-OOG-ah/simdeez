@@ -178,7 +178,7 @@ pub use base::*;
 
 mod libm_ext;
 
-mod engines;
+pub mod engines;
 
 pub use engines::scalar;
 
