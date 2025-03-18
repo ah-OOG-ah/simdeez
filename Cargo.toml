@@ -31,6 +31,12 @@ libm = { version = "0.2.11", optional = true }
 rand = "0.8.5"
 rand_chacha = "0.3.1"
 
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+panic = "abort"
+
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies.criterion]
 version = "0.5.1"
 
