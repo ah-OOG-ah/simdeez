@@ -168,6 +168,39 @@ pub trait __SimdRunner<A, R> {
 }
 
 #[inline(always)]
+pub fn __run_simd_runtime_decide<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
+    #![allow(unreachable_code)]
+
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    {
+        if is_x86_feature_detected!("avx2") && is_x86_feature_detected!("fma") {
+            return unsafe { S::run::<engines::avx2::Avx2>(args) };
+        }
+
+        if is_x86_feature_detected!("sse4.1") {
+            return unsafe { S::run::<engines::sse41::Sse41>(args) };
+        }
+
+        if is_x86_feature_detected!("sse2") {
+            return unsafe { S::run::<engines::sse2::Sse2>(args) };
+        }
+    }
+
+    #[cfg(target_arch = "aarch64")]
+    if is_aarch64_feature_detected!("neon") {
+        return unsafe { S::run::<engines::neon::Neon>(args) };
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    {
+        // Note: there's currently no way to detect SIMD support in WebAssembly at runtime
+        return unsafe { S::run::<engines::wasm32::Wasm>(args) };
+    }
+
+    unsafe { S::run::<engines::scalar::Scalar>(args) }
+}
+
+#[inline(always)]
 pub fn __run_simd_generic<E: Simd, S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     unsafe { S::run::<E>(args) }
 }
