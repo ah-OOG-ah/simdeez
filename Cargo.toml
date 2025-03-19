@@ -17,7 +17,7 @@ doctest = false
 
 [dependencies]
 paste = "1.0.15"
-libm = "0.2.11"
+libm = { path = "libm" }
 
 [dev-dependencies]
 rand = "0.8.5"
