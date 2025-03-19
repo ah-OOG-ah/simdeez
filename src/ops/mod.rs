@@ -1,22 +1,11 @@
 #![allow(dead_code)]
 
-#[cfg(target_arch = "aarch64")]
-use crate::engines::neon::Neon;
 use crate::engines::scalar::Scalar;
-#[cfg(target_arch = "wasm32")]
-use crate::engines::wasm32::Wasm;
-#[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+#[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
 use crate::engines::avx2::Avx2;
 
 use crate::libm_ext::FloatExt;
 use core::marker::PhantomData;
-
-#[cfg(target_arch = "aarch64")]
-use core::arch::aarch64::*;
-#[cfg(target_arch = "wasm32")]
-use core::arch::wasm32::*;
-#[cfg(target_arch = "x86")]
-use core::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::*;
 
@@ -46,11 +35,6 @@ macro_rules! with_feature_flag {
         #[cfg(target_arch = "x86_64")]
         $($r)+
     };
-    (Neon, $($r:tt)+) => {
-        #[cfg(target_arch = "aarch64")]
-        #[target_feature(enable = "neon")]
-        $($r)+
-    };
     (Scalar, $($r:tt)+) => {
         $($r)+
     };
@@ -60,10 +44,6 @@ use with_feature_flag;
 macro_rules! with_cfg_flag {
     (Avx2, $($r:tt)+) => {
         #[cfg(target_arch = "x86_64")]
-        $($r)+
-    };
-    (Neon, $($r:tt)+) => {
-        #[cfg(target_arch = "aarch64")]
         $($r)+
     };
     (Scalar, $($r:tt)+) => {

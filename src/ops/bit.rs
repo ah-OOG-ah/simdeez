@@ -8,9 +8,6 @@ impl_op! {
         for Scalar(a: u64, b: u64) -> u64 {
             a & b
         }
-        for Neon(a: int8x16_t, b: int8x16_t) -> int8x16_t {
-            vandq_s8(a, b)
-        }
     }
 }
 
@@ -22,9 +19,6 @@ impl_op! {
         for Scalar(a: u64, b: u64) -> u64 {
             a | b
         }
-        for Neon(a: int8x16_t, b: int8x16_t) -> int8x16_t {
-            vorrq_s8(a, b)
-        }
     }
 }
 
@@ -35,9 +29,6 @@ impl_op! {
         }
         for Scalar(a: u64, b: u64) -> u64 {
             a ^ b
-        }
-        for Neon(a: int8x16_t, b: int8x16_t) -> int8x16_t {
-            veorq_s8(a, b)
         }
     }
 }
@@ -51,9 +42,6 @@ impl_op! {
         for Scalar(a: u64) -> u64 {
             !a
         }
-        for Neon(a: int8x16_t) -> int8x16_t {
-            vreinterpretq_s8_u8(vmvnq_u8(vreinterpretq_u8_s8(a)))
-        }
     }
 }
 
@@ -64,9 +52,6 @@ impl_op! {
         }
         for Scalar(a: u64, b: u64) -> u64 {
             !a & b
-        }
-        for Neon(a: int8x16_t, b: int8x16_t) -> int8x16_t {
-            vandq_s8(vreinterpretq_s8_u8(vmvnq_u8(vreinterpretq_u8_s8(a))), b)
         }
     }
 }

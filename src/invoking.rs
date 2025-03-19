@@ -1,8 +1,5 @@
 use crate::{engines, Simd};
 
-#[cfg(target_arch = "aarch64")]
-use std::arch::is_aarch64_feature_detected;
-
 #[macro_export]
 macro_rules! fix_tuple_type {
     (()) => {
@@ -171,14 +168,9 @@ pub trait __SimdRunner<A, R> {
 pub fn __run_simd_runtime_decide<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     #![allow(unreachable_code)]
 
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
     {
         return unsafe { S::run::<engines::avx2::Avx2>(args) };
-    }
-
-    #[cfg(target_arch = "aarch64")]
-    if is_aarch64_feature_detected!("neon") {
-        return unsafe { S::run::<engines::neon::Neon>(args) };
     }
     unsafe { S::run::<engines::scalar::Scalar>(args) }
 }

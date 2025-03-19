@@ -8,9 +8,6 @@ impl_op! {
         for Scalar(a: i16, b: i16) -> i16 {
             a.wrapping_add(b)
         }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vaddq_s16(a, b)
-        }
     }
 }
 
@@ -21,9 +18,6 @@ impl_op! {
         }
         for Scalar(a: i16, b: i16) -> i16 {
             a.wrapping_sub(b)
-        }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vsubq_s16(a, b)
         }
     }
 }
@@ -36,9 +30,6 @@ impl_op! {
         for Scalar(a: i16, b: i16) -> i16 {
             a.wrapping_mul(b)
         }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vmulq_s16(a, b)
-        }
     }
 }
 
@@ -49,9 +40,6 @@ impl_op! {
         }
         for Scalar(a: i16, b: i16) -> i16 {
             a.min(b)
-        }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vminq_s16(a, b)
         }
     }
 }
@@ -64,9 +52,6 @@ impl_op! {
         for Scalar(a: i16, b: i16) -> i16 {
             a.max(b)
         }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vmaxq_s16(a, b)
-        }
     }
 }
 
@@ -77,9 +62,6 @@ impl_op! {
         }
         for Scalar(a: i16) -> i16 {
             a.abs()
-        }
-        for Neon(a: int16x8_t) -> int16x8_t {
-            vabsq_s16(a)
         }
     }
 }
@@ -96,9 +78,6 @@ impl_op! {
                 0
             }
         }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vreinterpretq_s16_u16(vceqq_s16(a, b))
-        }
     }
 }
 
@@ -114,9 +93,6 @@ impl_op! {
             } else {
                 0
             }
-        }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vreinterpretq_s16_u16(vmvnq_u16(vceqq_s16(a, b)))
         }
     }
 }
@@ -135,9 +111,6 @@ impl_op! {
                 0
             }
         }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vreinterpretq_s16_u16(vcltq_s16(a, b))
-        }
     }
 }
 
@@ -154,9 +127,6 @@ impl_op! {
                 0
             }
         }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vreinterpretq_s16_u16(vcleq_s16(a, b))
-        }
     }
 }
 
@@ -171,9 +141,6 @@ impl_op! {
             } else {
                 0
             }
-        }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vreinterpretq_s16_u16(vcgtq_s16(a, b))
         }
     }
 }
@@ -192,9 +159,6 @@ impl_op! {
                 0
             }
         }
-        for Neon(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-            vreinterpretq_s16_u16(vcgeq_s16(a, b))
-        }
     }
 }
 
@@ -210,9 +174,6 @@ impl_op! {
                 b
             }
         }
-        for Neon(a: int16x8_t, b: int16x8_t, mask: int16x8_t) -> int16x8_t {
-            vbslq_s16(vreinterpretq_u16_s16(mask), b, a)
-        }
     }
 }
 
@@ -223,10 +184,6 @@ impl_op! {
         }
         for Scalar(a: i16, rhs: i32) -> i16 {
             a << rhs
-        }
-        for Neon(a: int16x8_t, rhs: i32) -> int16x8_t {
-            let rhs = Self::set1(rhs as i16);
-            vshlq_s16(a, rhs)
         }
     }
 }
@@ -239,10 +196,6 @@ impl_op! {
         for Scalar(a: i16, rhs: i32) -> i16 {
             ((a as u16) >> rhs) as i16
         }
-        for Neon(a: int16x8_t, rhs: i32) -> int16x8_t {
-            let rhs = Self::set1(-rhs as i16);
-            vreinterpretq_s16_u16(vshlq_u16(vreinterpretq_u16_s16(a), rhs))
-        }
     }
 }
 
@@ -254,9 +207,6 @@ impl_imm8_op! {
         for Scalar(a: i16) -> i16 {
             a << BY
         }
-        for Neon(a: int16x8_t) -> int16x8_t {
-            vshlq_n_s16(a, BY)
-        }
     }
 }
 
@@ -267,9 +217,6 @@ impl_imm8_op! {
         }
         for Scalar(a: i16) -> i16 {
             ((a as u16) >> BY) as i16
-        }
-        for Neon(a: int16x8_t) -> int16x8_t {
-            vreinterpretq_s16_u16(vshrq_n_u16(vreinterpretq_u16_s16(a), BY))
         }
     }
 }
@@ -284,11 +231,6 @@ impl_op! {
         for Scalar(val: i16) -> (i32, i32) {
             (val as i32, 0)
         }
-        for Neon(val: int16x8_t) -> (int32x4_t, int32x4_t) {
-            let a = vmovl_s16(vget_low_s16(val));
-            let b = vmovl_s16(vget_high_s16(val));
-            (a, b)
-        }
     }
 }
 
@@ -302,11 +244,6 @@ impl_op! {
         for Scalar(val: i16) -> (i32, i32) {
             (val as u16 as u32 as i32, 0)
         }
-        for Neon(val: int16x8_t) -> (int32x4_t, int32x4_t) {
-            let a = vreinterpretq_s32_u32(vmovl_u16(vreinterpret_u16_s16(vget_low_s16(val))));
-            let b = vreinterpretq_s32_u32(vmovl_u16(vreinterpret_u16_s16(vget_high_s16(val))));
-            (a, b)
-        }
     }
 }
 
@@ -317,9 +254,6 @@ impl_op! {
         }
         for Scalar() -> i16 {
             0
-        }
-        for Neon() -> int16x8_t {
-            vdupq_n_s16(0)
         }
     }
 }
@@ -332,9 +266,6 @@ impl_op! {
         for Scalar(val: i16) -> i16 {
             val
         }
-        for Neon(val: i16) -> int16x8_t {
-            vdupq_n_s16(val)
-        }
     }
 }
 
@@ -345,9 +276,6 @@ impl_op! {
         }
         for Scalar(ptr: *const i16) -> i16 {
             unsafe { *ptr }
-        }
-        for Neon(ptr: *const i16) -> int16x8_t {
-            vld1q_s16(ptr)
         }
     }
 }
@@ -360,9 +288,6 @@ impl_op! {
         for Scalar(ptr: *const i16) -> i16 {
             unsafe { *ptr }
         }
-        for Neon(ptr: *const i16) -> int16x8_t {
-            vld1q_s16(ptr)
-        }
     }
 }
 
@@ -374,9 +299,6 @@ impl_op! {
         for Scalar(ptr: *mut i16, a: i16) {
             unsafe { *ptr = a }
         }
-        for Neon(ptr: *mut i16, a: int16x8_t) {
-            vst1q_s16(ptr, a)
-        }
     }
 }
 
@@ -387,9 +309,6 @@ impl_op! {
         }
         for Scalar(ptr: *mut i16, a: i16) {
             unsafe { *ptr = a }
-        }
-        for Neon(ptr: *mut i16, a: int16x8_t) {
-            vst1q_s16(ptr, a)
         }
     }
 }
