@@ -35,7 +35,7 @@
 //! You may also forgo the macros if you know what you are doing, just keep in mind there are lots
 //! of arcane subtleties with inlining and target_features that must be managed. See how the macros
 //! expand for more detail.
-#![allow(clippy::missing_safety_doc)] // TODO: Work on the safety of functions
+#![allow(clippy::missing_safety_doc, unsafe_op_in_unsafe_fn)] // TODO: Work on the safety of functions
 #![cfg_attr(all(feature = "no_std", not(test)), no_std)]
 #[macro_use]
 #[cfg(test)]
