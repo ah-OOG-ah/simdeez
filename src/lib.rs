@@ -37,10 +37,12 @@
 //! expand for more detail.
 #![allow(clippy::missing_safety_doc, unsafe_op_in_unsafe_fn)] // TODO: Work on the safety of functions
 #![cfg_attr(all(feature = "no_std", not(test)), no_std)]
+
 #[macro_use]
 #[cfg(test)]
 extern crate std;
 pub extern crate paste;
+
 
 #[cfg(test)]
 mod tests;

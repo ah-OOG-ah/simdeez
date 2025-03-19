@@ -1,28 +1,19 @@
 #![allow(dead_code)]
 
 use crate::engines::scalar::Scalar;
-#[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
 use {crate::engines::avx2::Avx2, core::arch::x86_64::*};
 
 use crate::libm_ext::FloatExt;
 use core::marker::PhantomData;
 
 mod i8;
-
 mod i16;
-
 mod i32;
-
 mod i64;
-
 mod f32;
-
 mod f64;
-
 mod bit;
-
 mod casts;
-
 #[allow(non_camel_case_types)]
 pub struct binary;
 
@@ -30,7 +21,6 @@ pub struct Ops<T, T2>(PhantomData<(T, T2)>);
 
 macro_rules! with_feature_flag {
     (Avx2, $($r:tt)+) => {
-        #[target_feature(enable = "avx2")]
         $($r)+
     };
     (Scalar, $($r:tt)+) => {
@@ -41,8 +31,7 @@ use with_feature_flag;
 
 macro_rules! with_cfg_flag {
     (Avx2, $($r:tt)+) => {
-        #[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
-        $($r)+
+                $($r)+
     };
     (Scalar, $($r:tt)+) => {
         $($r)+

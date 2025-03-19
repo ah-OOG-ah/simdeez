@@ -106,7 +106,7 @@ macro_rules! simd_unsafe_generate_all {
         simdeez_paste_item! {
             $(#[$meta])*
             #[inline(always)]
-            #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+            #[cfg(target_arch = "x86_64")]
             $vis fn [<$fn_name _scalar>] $(<$($lt),+>)?($($arg:$typ,)*) -> $rt {
                 let args_tuple = ($($arg,)*);
                 __run_simd_invoke_scalar::<[<__ $fn_name _dispatch_struct>], fix_tuple_type!(($($typ),*)), $rt>(args_tuple)
@@ -114,42 +114,10 @@ macro_rules! simd_unsafe_generate_all {
 
             $(#[$meta])*
             #[inline(always)]
-            #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-            $vis unsafe fn [<$fn_name _sse2>] $(<$($lt),+>)?($($arg:$typ,)*) -> $rt {
-                let args_tuple = ($($arg,)*);
-                __run_simd_invoke_sse2::<[<__ $fn_name _dispatch_struct>], fix_tuple_type!(($($typ),*)), $rt>(args_tuple)
-            }
-
-            $(#[$meta])*
-            #[inline(always)]
-            #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-            $vis unsafe fn [<$fn_name _sse41>] $(<$($lt),+>)?($($arg:$typ,)*) -> $rt {
-                let args_tuple = ($($arg,)*);
-                __run_simd_invoke_sse41::<[<__ $fn_name _dispatch_struct>], fix_tuple_type!(($($typ),*)), $rt>(args_tuple)
-            }
-
-            $(#[$meta])*
-            #[inline(always)]
-            #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+            #[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
             $vis unsafe fn [<$fn_name _avx2>] $(<$($lt),+>)?($($arg:$typ,)*) -> $rt {
                 let args_tuple = ($($arg,)*);
                 __run_simd_invoke_avx2::<[<__ $fn_name _dispatch_struct>], fix_tuple_type!(($($typ),*)), $rt>(args_tuple)
-            }
-
-            $(#[$meta])*
-            #[inline(always)]
-            #[cfg(target_arch = "aarch64")]
-            $vis unsafe fn [<$fn_name _neon>] $(<$($lt),+>)?($($arg:$typ,)*) -> $rt {
-                let args_tuple = ($($arg,)*);
-                __run_simd_invoke_neon::<[<__ $fn_name _dispatch_struct>], fix_tuple_type!(($($typ),*)), $rt>(args_tuple)
-            }
-
-            $(#[$meta])*
-            #[inline(always)]
-            #[cfg(target_arch = "wasm32")]
-            $vis unsafe fn [<$fn_name _wasm>] $(<$($lt),+>)?($($arg:$typ,)*) -> $rt {
-                let args_tuple = ($($arg,)*);
-                __run_simd_invoke_wasm::<[<__ $fn_name _dispatch_struct>], fix_tuple_type!(($($typ),*)), $rt>(args_tuple)
             }
 
             __simd_generate_base!($(#[$meta])* $vis fn $fn_name $(<$($lt),+>)? ($($arg:$typ),* ) -> $rt $body);
@@ -168,8 +136,7 @@ pub trait __SimdRunner<A, R> {
 pub fn __run_simd_runtime_decide<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     #![allow(unreachable_code)]
 
-    #[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
-    {
+        {
         return unsafe { S::run::<engines::avx2::Avx2>(args) };
     }
     unsafe { S::run::<engines::scalar::Scalar>(args) }
@@ -185,16 +152,8 @@ pub fn __run_simd_compiletime_select<S: __SimdRunner<A, R>, A, R>(args: A) -> R 
     #![allow(unreachable_code)]
     #![allow(clippy::needless_return)]
 
-    #[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
-    {
-        return unsafe { S::run::<engines::avx2::Avx2>(args) };
-    }
+    return unsafe { S::run::<engines::avx2::Avx2>(args) };
 
-    #[cfg(target_arch = "aarch64")]
-    {
-        #[cfg(target_feature = "neon")]
-        return unsafe { S::run::<engines::neon::Neon>(args) };
-    }
     return unsafe { S::run::<engines::scalar::Scalar>(args) };
 }
 
@@ -202,16 +161,10 @@ pub fn __run_simd_compiletime_select<S: __SimdRunner<A, R>, A, R>(args: A) -> R 
 pub fn __run_simd_invoke_scalar<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     unsafe { S::run::<engines::scalar::Scalar>(args) }
 }
-#[inline(always)]
-#[cfg(all(target_arch = "x86_64", target_arch = "x86"))]
-pub unsafe fn __run_simd_invoke_avx2<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
-    unsafe { S::run::<engines::avx2::Avx2>(args) }
-}
 
 #[inline(always)]
-#[cfg(target_feature = "neon")]
-pub unsafe fn __run_simd_invoke_neon<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
-    unsafe { S::run::<engines::neon::Neon>(args) }
+pub unsafe fn __run_simd_invoke_avx2<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
+    unsafe { S::run::<engines::avx2::Avx2>(args) }
 }
 
 #[macro_export]
