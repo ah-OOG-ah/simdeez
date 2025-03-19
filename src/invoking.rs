@@ -132,13 +132,15 @@ pub trait __SimdRunner<A, R> {
     unsafe fn run<S: Simd>(args: A) -> R;
 }
 
+pub trait Avx2Runner<A, R> {
+    unsafe fn run(args: A) -> R;
+}
+
 #[inline(always)]
 pub fn __run_simd_runtime_decide<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     #![allow(unreachable_code)]
 
-        {
-        return unsafe { S::run::<engines::avx2::Avx2>(args) };
-    }
+    return unsafe { S::run::<engines::avx2::Avx2>(args) };
     unsafe { S::run::<engines::scalar::Scalar>(args) }
 }
 
@@ -165,6 +167,11 @@ pub fn __run_simd_invoke_scalar<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
 #[inline(always)]
 pub unsafe fn __run_simd_invoke_avx2<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     unsafe { S::run::<engines::avx2::Avx2>(args) }
+}
+
+#[inline(always)]
+pub unsafe fn run_simd_invoke_avx2<S: Avx2Runner<A, R>, A, R>(args: A) -> R {
+    unsafe { S::run(args) }
 }
 
 #[macro_export]
