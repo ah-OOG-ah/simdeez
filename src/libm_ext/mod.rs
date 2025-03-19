@@ -1,9 +1,5 @@
 #![allow(dead_code)]
-#[cfg(feature = "no_std")]
 mod no_std;
-
-#[cfg(not(feature = "no_std"))]
-mod with_std;
 
 /// Math support for `f32`
 pub trait FloatExt: private::Sealed + Sized {

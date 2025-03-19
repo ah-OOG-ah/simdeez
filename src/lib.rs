@@ -36,7 +36,7 @@
 //! of arcane subtleties with inlining and target_features that must be managed. See how the macros
 //! expand for more detail.
 #![allow(clippy::missing_safety_doc, unsafe_op_in_unsafe_fn)] // TODO: Work on the safety of functions
-#![cfg_attr(all(feature = "no_std", not(test)), no_std)]
+#![cfg_attr(not(test), no_std)]
 
 #[macro_use]
 #[cfg(test)]

@@ -13,15 +13,11 @@ edition = "2024"
 publish = false
 
 [lib]
-doctest = true
-
-[features]
-default = []
-no_std = ["dep:libm"]
+doctest = false
 
 [dependencies]
 paste = "1.0.15"
-libm = { version = "0.2.11", optional = true }
+libm = "0.2.11"
 
 [dev-dependencies]
 rand = "0.8.5"
