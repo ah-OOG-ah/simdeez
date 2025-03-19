@@ -2,12 +2,10 @@
 
 use crate::engines::scalar::Scalar;
 #[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
-use crate::engines::avx2::Avx2;
+use {crate::engines::avx2::Avx2, core::arch::x86_64::*};
 
 use crate::libm_ext::FloatExt;
 use core::marker::PhantomData;
-#[cfg(target_arch = "x86_64")]
-use core::arch::x86_64::*;
 
 mod i8;
 

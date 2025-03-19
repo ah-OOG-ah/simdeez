@@ -185,7 +185,7 @@ pub fn __run_simd_compiletime_select<S: __SimdRunner<A, R>, A, R>(args: A) -> R 
     #![allow(unreachable_code)]
     #![allow(clippy::needless_return)]
 
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
     {
         return unsafe { S::run::<engines::avx2::Avx2>(args) };
     }
@@ -203,7 +203,7 @@ pub fn __run_simd_invoke_scalar<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     unsafe { S::run::<engines::scalar::Scalar>(args) }
 }
 #[inline(always)]
-#[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+#[cfg(all(target_arch = "x86_64", target_arch = "x86"))]
 pub unsafe fn __run_simd_invoke_avx2<S: __SimdRunner<A, R>, A, R>(args: A) -> R {
     unsafe { S::run::<engines::avx2::Avx2>(args) }
 }
